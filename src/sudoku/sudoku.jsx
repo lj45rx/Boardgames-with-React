@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import SudokuContainer from '/src/sudoku/sudoku.js'
 
-
 const COLOR_HIHGLIGHT_SELECTED = "rgb(130, 215, 255)";
 const COLOR_HIGHLIGHT_BLOCK = "rgb(170, 228, 255)";
 const COLOR_HIGHLIGHT_ROWCOL = "rgb(200, 238, 255)";
@@ -11,6 +10,12 @@ const COLOR_CELL_BASE = "rgb(220,220,220)";
 const COLOR_HIGHLIGHT_VALUE = "rgb(130, 215, 255)";
 const EMPTY_FIELD_STRING = "_";
 
+const directionMap = new Map([
+    ["ArrowUp", [0,-1]],
+    ["ArrowDown", [0,1]],
+    ["ArrowLeft", [-1,0]],
+    ["ArrowRight", [1,0]]
+]);
 
 function Sudoku({props}){
     const blockSize = (props.blockSize)? props.blockSize : 3;
@@ -43,44 +48,60 @@ function Sudoku({props}){
 
     const cells = [];
     const cellDivIndices = [];
-    let cellDivsInitialized = false;
+    let cellDivsInitialized = false; //TODO can be removed if no problems appear (also see setCellXYBackgroundColor())
     const cellDivs = [...Array(numRows)].map(e => Array(numCols).fill(null));
     createCells();
 
-    useEffect(() => {
+    let cellListeningForKey = null;
+    useEffect(() => { 
         console.log("use effect -> document is loaded")
         initCellDivs();
         overwriteFieldFromContainer();
-        
+
+        // if not put here new eventlisteners will be produced and duplicated events sent
+        document.addEventListener('keyup', onKeyUp);
+        return () => {
+            document.removeEventListener('keyup', onKeyUp);
+            console.log("use effect -> destroyed");
+        };
     });
 
-    let cellListeningForKey = null;
-    document.addEventListener('keyup', (e) => {
+    function onKeyUp(e){
+        if(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)){
+            onArrowKey(e.key);
+            return;
+        }
         if(cellListeningForKey == null) return;
+
         const [cell, x, y] = cellListeningForKey;
 
         if(!sudokuContainer.setXY(x,y,e.key)){
+            // clear cells on invalid keys
             cell.textContent = "_";
             return;
         }
         cell.textContent = e.key;
-        /*
-        let keyToNumber = parseInt(e.key);
-        if( isNaN(keyToNumber) || keyToNumber < 1 || keyToNumber > 9){
-            cell.textContent = "_";
-            sudokuContainer.setXY(x,y,-1);
+        highlightCell(x, y)
+    }
+    
+    function onArrowKey(directionString){
+        if( !directionMap.has(directionString) ){
+            console.error("unknown value for directin: " + directionString);
             return;
         }
+        const [dx, dy] = directionMap.get(directionString);
 
-        cell.textContent = keyToNumber;
-        sudokuContainer.setXY(x,y,keyToNumber-1);
+        let [_, x, y] = [null, 0, 0];
+        if(cellListeningForKey != null){
+            [_, x, y] = cellListeningForKey;
+        }
+        
+        const [new_x, new_y] = [x+dx, y+dy];
+        if(!isInBounds(new_x, new_y)) return;
 
-        */
-
-        //highlightAllOfValue(x,y);
-        clearAllHighlights();
-        highlightCell(x, y)
-    });
+        highlightCell(new_x,new_y);
+        setSelectedCell(new_x,new_y);
+    }
 
     function setSelectedCell(x,y){
         cellListeningForKey = [cellDivs[y][x], x, y];
@@ -106,6 +127,10 @@ function Sudoku({props}){
         return "";
     }
 
+    function isInBounds(x,y){
+        return 0 <= x && 0 <= y && x < numCols && y < numRows;
+    }
+
     function getIndexFromXY(x,y){
         return y*numCols + x;
     }
@@ -115,10 +140,13 @@ function Sudoku({props}){
     }
 
     function setCellXYBackgroundColor(x,y,color){
+        /*
+        // TODO should not be necessary anymore - after putting init in useEffect
         if(!cellDivsInitialized){
             initCellDivs()
             cellDivsInitialized = true;
         }
+        */
         const cell = cellDivs[y][x];        
         cell.style.backgroundColor = color;
     }
@@ -132,6 +160,8 @@ function Sudoku({props}){
     }
 
     function highlightCell(x,y){
+        clearAllHighlights();
+
         // block
         let blockX = Math.floor(x/blockSize);
         let blockY = Math.floor(y/blockSize);
@@ -154,7 +184,7 @@ function Sudoku({props}){
         highlightAllOfValue(x,y);
         
         // cell under mouse
-        //setCellXYBackgroundColor(x,y, COLOR_HIHGLIGHT_SELECTED);
+        setCellXYBackgroundColor(x,y, COLOR_HIHGLIGHT_SELECTED);
     }
 
     function highlightAllOfValue(x, y){
@@ -162,16 +192,13 @@ function Sudoku({props}){
         let positions = sudokuContainer.getPositionsOfValue(value);
   
         for(let [cell_x, cell_y] of positions){
-            //console.log(cell_x, " ", cell_y)
             setCellXYBackgroundColor(cell_x, cell_y, COLOR_HIGHLIGHT_VALUE);
         }
     }
 
     function onMouseOver(_,i,x,y){
-        clearAllHighlights();
         highlightCell(x,y);
         setSelectedCell(x,y);
-        highlightAllOfValue(x,y);
     }
 
     function onMouseOut(_,i,x,y){
@@ -232,35 +259,6 @@ function Sudoku({props}){
                         {createCellsForBlock(x, y)}
                     </div>
                 )
-            }
-        }
-    }
-
-    function createCells_old(){
-        for(let y = 0; y < numRows; y++){
-            for(let x = 0; x < numCols; x++){
-                let i = y*numCols+x;
-                // console.log(`creating x: ${x} y: ${y} idx: ${i}`)
-                cells.push(
-                    <div className="cell"
-                            style={style_cell}
-                            key={`${x}_${y}`}
-                            onClick={(e) => onCellClicked(e, i, x, y)}
-                            onMouseOver={(e) => onMouseOver(e,i,x,y)}
-                            onMouseOut={(e) => onMouseOut(e,i,x,y)}>{EMPTY_FIELD_STRING}</div>
-                )
-                //TODO if i is changed onClick also uses new value????
-                // eg incrementing single i for each 
-                // -----
-                // let i = 0; 
-                // for ()
-                //   for()
-                //     ...
-                //     .onClick(e,i)
-                //     ...
-                //     i++
-                // -----
-                // in the end all use the same value (=rows*cols)
             }
         }
     }
