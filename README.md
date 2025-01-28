@@ -18,15 +18,15 @@ TicTacToe            |  Four in a row         |  Gomoku
 <a name="sudoku-section"></a>
 ## Sudoku
 ### with button to automatically solve
-* enter a number by moving mouse over a field and typing
-* all keys except valid inputs clear the cell instead
+* select a cell via mouse-over or using the arrow keys
+* enter a value by typing a key
+* valid keys are set, invalid keys clear the selected cell
 * highlight, row, column, block and other cells with the same value
 
-
-3x3            |   2x2         |
-:-------------------------:|:-------------------------:|
-![temp6](https://github.com/user-attachments/assets/7cd30ca8-15a2-4108-974a-eb5177f89aa4) |  ![temp7](https://github.com/user-attachments/assets/3ad8ebcd-eec2-4119-94bd-d6eada65e5a2)
-standart 3x3 field <br>(highlighting for mouse over 1 in top-left field)  | experimental 2x2 (and 4x4)
+2x2            |   3x3         | 4x4
+:-------------------------:|:-------------------------:|:-------------------------:|
+  ![temp7](https://github.com/user-attachments/assets/3ad8ebcd-eec2-4119-94bd-d6eada65e5a2) |![temp6](https://github.com/user-attachments/assets/7cd30ca8-15a2-4108-974a-eb5177f89aa4) | ![temp8](https://github.com/user-attachments/assets/2bb1df22-1fb9-4de8-8248-7cc8f72dde0d)
+2x2 <br> (using numbers 1-4) | 3x3 <br>(highlighting for mouse over 1 in top-left field)  | 4x4 field <br>(using 0-9 and a-f)
 
 <a name="reversi-section"></a>
 ## Reversi
