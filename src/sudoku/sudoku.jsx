@@ -14,7 +14,6 @@ const EMPTY_FIELD_STRING = "_";
 
 function Sudoku({props}){
     const blockSize = (props.blockSize)? props.blockSize : 3;
-    //const blockSize = 3
     const sudokuContainer = new SudokuContainer(blockSize);
     const numCols = blockSize*blockSize;
     const numRows = numCols;
@@ -22,7 +21,8 @@ function Sudoku({props}){
     const widthPercent = 30;
     const style_cellContainer = {
         gridTemplateColumns: `repeat(${blockSize}, auto)`,
-        width: `${widthPercent}%`,
+        //width: `${widthPercent}%`,
+        width: "70vh",
         display: "grid",
         margin: "auto",
         border: "3px solid black"
@@ -59,6 +59,12 @@ function Sudoku({props}){
         if(cellListeningForKey == null) return;
         const [cell, x, y] = cellListeningForKey;
 
+        if(!sudokuContainer.setXY(x,y,e.key)){
+            cell.textContent = "_";
+            return;
+        }
+        cell.textContent = e.key;
+        /*
         let keyToNumber = parseInt(e.key);
         if( isNaN(keyToNumber) || keyToNumber < 1 || keyToNumber > 9){
             cell.textContent = "_";
@@ -68,6 +74,9 @@ function Sudoku({props}){
 
         cell.textContent = keyToNumber;
         sudokuContainer.setXY(x,y,keyToNumber-1);
+
+        */
+
         //highlightAllOfValue(x,y);
         clearAllHighlights();
         highlightCell(x, y)
@@ -87,7 +96,7 @@ function Sudoku({props}){
             for(let y = 0; y < numCols; y++){
                 let cell = cellDivs[y][x];
                 let val = sudokuContainer.getXY(x,y);
-                cell.textContent = (val == -1)? EMPTY_FIELD_STRING : val+1;
+                cell.textContent = (val == -1)? EMPTY_FIELD_STRING : val;
             }
         }
     }

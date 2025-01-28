@@ -1,4 +1,43 @@
 
+class Translator{
+    // for sizes 2x2, 3x3, 4x4, 5x5 - no checks for invalid sizes
+    static charSets = [
+        "1234",
+        "123456789",
+        "0123456789abcdef",
+        "abcdefghiklmnopqrstuvwxyz"
+    ]
+    constructor(size){
+        this.size = size;
+        this.valueCount = size*size;
+        this.dict = new Map();
+        this.chars = Array(this.valueCount);
+
+        this.#init();
+    }
+
+    #init(){
+        const charSet = Translator.charSets[this.size-2];
+        for(let i = 0; i < charSet.length; i++){
+            this.dict.set(charSet[i], i);
+            this.chars[i] = charSet[i];
+        }
+    }
+
+    charToValue(char){
+        const key = String(char);
+        if(!this.dict.has(key)) return null;
+
+        return this.dict.get(key);
+    }
+
+    valueToChar(value){
+        if(value < 0 || this.valueCount <= value) return null;
+
+        return this.chars[value];
+    }
+}
+
 const EMPTY_FIELD_VALUE = -1
 class SudokuContainer{
     constructor(size = 3){
@@ -7,9 +46,10 @@ class SudokuContainer{
         this.cellCount = this.colRowCount*this.colRowCount;
         this.maxVal = this.colRowCount-1;
 
-        this.cellValues;;
+        this.cellValues;
         this.initToEmpty();
-        //this.initWithArray();
+        
+        this.translator = new Translator(size);
     }
 
     initWithArray(){
@@ -30,14 +70,21 @@ class SudokuContainer{
     }
 
     getXY(x, y){
-        return this.cellValues[this.xyToIndex(x,y)];
+        const value = this.cellValues[this.xyToIndex(x,y)];
+        if(value == EMPTY_FIELD_VALUE) return EMPTY_FIELD_VALUE;
+
+        return this.translator.valueToChar(value);
+        //return value;
     }
 
-    getPositionsOfValue(value){
-        if ( value == EMPTY_FIELD_VALUE ) return [];
+    getPositionsOfValue(receivedValue){
+        if ( receivedValue == EMPTY_FIELD_VALUE ) return [];
+
+        const value = this.translator.charToValue(receivedValue);
+        if (value == null) return [];
+        
         let res = [];
         for(let i = 0; i < this.cellValues.length; i++){
-            //console.log(`${value} vs ${this.cellValues[i]} ${this.cellValues[i] == value} `)
             if( this.cellValues[i] == value ){
                 res.push(this.indexToXY(i));
             }
@@ -46,10 +93,17 @@ class SudokuContainer{
     }
 
     setXY(x, y, value){
-        if(this.maxVal < value) return;
-        this.cellValues[this.xyToIndex(x,y)] = value;
-    
+        const numberValue = this.translator.charToValue(value);
+
+        if(numberValue == null){
+            this.cellValues[this.xyToIndex(x,y)] = EMPTY_FIELD_VALUE;
+            this.printField()
+            return false;
+        }
+
+        this.cellValues[this.xyToIndex(x,y)] = numberValue;
         this.printField()
+        return true;
     }
 
     printField(){
@@ -180,7 +234,7 @@ class SudokuContainer{
         console.log("################");
         if( solution.isSolved ){
             this.cellValues = solution.solution;
-            console.log("found solution:\n", this.fieldToPrintableString(solution.solution));
+            console.log("found solution:\n" + this.fieldToPrintableString(solution.solution));
         } else {
             console.log("no solution found");
         }
@@ -216,16 +270,14 @@ class SudokuContainer{
         }
     }
 
-
-    todoGetMaxValueStringWidth(){ return 1; }
     fieldToPrintableString(fieldValues){
         // if only partially filled, fill rest with empty
         if(fieldValues.length < this.cellCount){
             fieldValues = [...fieldValues, ...Array( this.cellCount-fieldValues.length ).fill(EMPTY_FIELD_VALUE)];
         }
 
-        // how wide in chars can values be, usually 1, todo maybe in future experiments
-        const entryWidth = this.todoGetMaxValueStringWidth();
+        // how wide in chars can values be, usually 1
+        const entryWidth = String(this.maxVal).length;
 
         // create segments 
 
@@ -284,30 +336,3 @@ class SudokuContainer{
 
 
 export default SudokuContainer;
-
-
-//TODO delete 
-/*
-getBlockIdxFromXY(x, y){
-    return Math.floor(x/this.blockSize) + this.blockSize*Math.floor(y/this.blockSize);
-}
-
-checkBlock_old(blockIdx){
-    let hits = Array(9).fill(false);
-    let blockX = 3*(blockIdx%3);
-    let blockY = 3*Math.floor(blockIdx/3);
-
-    for(let i = 0; i < 9; i++){
-        let x = blockX + i%3
-        let y = blockY + Math.floor(i/3)
-        let valueAtPos = this.getXY(x,y);
-        if( valueAtPos == -1 ) continue;
-
-        if( hits[valueAtPos+1] ){
-            return false;
-        }
-        hits[valueAtPos+1] = true;
-    }
-    return true;
-}
-*/

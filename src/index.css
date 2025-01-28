@@ -34,10 +34,8 @@ h1, h2{
 
 button {
   width: 50%;
-  height: 24px;
-  margin-top: 24px;
-  margin-bottom: 24px;
-  margin-left: 25%;
+  height: 2em;
+  margin: 12px 25%;
   background-color: hsl(0, 0%, 77%);
 }
 
