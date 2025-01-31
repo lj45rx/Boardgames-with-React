@@ -27,7 +27,8 @@ function Sudoku({props}){
     const style_cellContainer = {
         gridTemplateColumns: `repeat(${blockSize}, auto)`,
         //width: `${widthPercent}%`,
-        width: "70vh",
+        //width: "70vh",
+        maxWidth: "70vh",
         display: "grid",
         margin: "auto",
         border: "3px solid black"
@@ -277,7 +278,7 @@ function Sudoku({props}){
     return (
         <>
             <div id="snackbar">Some text some message..</div> {/* seems position doesnt matter */}
-            <div className="gameContainer">
+            <div className="backgroundPattern1">
                 <h1>Sudoku</h1>
                 <div id="cellContainer" style={style_cellContainer}>
                     {cells}

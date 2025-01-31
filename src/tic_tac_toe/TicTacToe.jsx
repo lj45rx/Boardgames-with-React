@@ -242,7 +242,7 @@ function TicTacToe({props}){
     return (
         <>
             <div id="snackbar">Some text some message..</div> {/* seems position doesnt matter */}
-            <div className="gameContainer">
+            <div className="backgroundPattern1">
                 <h1>{title}</h1>
                 <div id="cellContainer" style={style_cellContainer}>
                     {cells}

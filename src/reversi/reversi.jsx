@@ -361,8 +361,8 @@ function Reversi(){
     return (
         <>
             <div id="snackbar">Some text some message..</div> {/* seems position doesnt matter */}
-            <div className="gameContainer">
-                <h1>reversi</h1>
+            <div className="backgroundPattern1">
+                <h1>Reversi</h1>
                 <div id="cellContainer" style={style_cellContainer}>
                     {cells}
                 </div>
