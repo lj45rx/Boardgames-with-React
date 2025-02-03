@@ -8,14 +8,17 @@ const COLOR_EMPTY_CELL = "black";
 const COLOR_BORDER_NORMAL = "black";
 const COLOR_BORDER_HIGHLIGHT = "lime";
 
+const COLOR_OUTER_BORDER_RUNNING = "green";
+const COLOR_OUTER_BORDER_PAUSED = "red";
+
 const UPDATE_MS = 100;
 
 let gol;
 let gameRunning = false;
 let isMouseDown = false;
 function GameOfLife(){
-    const rows = 100;
-    const cols = 100;
+    const rows = 50;
+    const cols = 50;
     
     const widthPercent = 50;
     
@@ -24,7 +27,7 @@ function GameOfLife(){
         width: `${widthPercent}%`,
         display: "grid",
         margin: "auto",
-        border: "3px solid white",
+        border: `3px solid ${COLOR_OUTER_BORDER_PAUSED}`,
         backgroundColor: COLOR_ACTIVE_CELL
     }
     const style_cell = { 
@@ -43,10 +46,13 @@ function GameOfLife(){
             }
         }, UPDATE_MS);
 
+        document.addEventListener('keydown', onKeyDown);
+
         gol = new ConwayGameOfLife(cols, rows);       
         redrawField() 
 
         return () => { // clear on unmount
+            document.removeEventListener('keydown', onKeyDown);
             clearInterval(intervalId);
         }
     }, []);
@@ -73,6 +79,11 @@ function GameOfLife(){
         cell.style.borderColor = color;
     }
 
+    function setOuterBorderColor(color){
+        const element = document.getElementById("cellContainer");
+        element.style.borderColor = color;
+    }
+
     function setCell(i,x,y){
         setCellBackgroundColor(i, COLOR_MANUAL_CELL);
         gol.setXY(y,x,1);
@@ -97,29 +108,67 @@ function GameOfLife(){
         setCell(i,x,y)
     }
 
-    function onStartButtonPressed(){
+    function startGame(){
         gameRunning = true;
+        setOuterBorderColor(COLOR_OUTER_BORDER_RUNNING)
     }
 
-    function onStopButtonPressed(){
+    function stopGame(){
         gameRunning = false;
+        setOuterBorderColor(COLOR_OUTER_BORDER_PAUSED)
+        gol.resetRememberedStates();
     }
 
-    function onResetButtonPressed(){
+    function onStartStopButtonPressed(){
+        const button = document.getElementById("button_startStop");
+        if(gameRunning){
+            stopGame()
+            button.textContent = "Start"
+            return;
+        }
+
+        button.textContent = "Stop"
+        startGame();
+
+    }
+
+    function onResetButtonPressed(){ //TODO simplify different resets
         gameRunning = false;
         gol.initFieldToRandom();
         redrawField();
+        setOuterBorderColor(COLOR_OUTER_BORDER_PAUSED);
+        const button = document.getElementById("button_startStop").textContent = "Start";
     }
 
-    function onResetEmptyButtonPressed(){
+    function onResetEmptyButtonPressed(){ //TODO simplify different resets
         gameRunning = false;
         gol.initFieldToEmpty();
         redrawField();
+        setOuterBorderColor(COLOR_OUTER_BORDER_PAUSED);
+        const button = document.getElementById("button_startStop").textContent = "Start";
     }
 
     function containerClicked(event, mouseDown){
         event.preventDefault(); // else browser will try to drag 
         isMouseDown = mouseDown;
+
+        if(!mouseDown){
+            gol.rememberState()
+        }
+    }
+
+    function onKeyDown(event){
+        if(gameRunning) return;
+
+        if (event.ctrlKey && event.key === 'z') {
+            if(gol.revertToLastState()){
+                redrawField()
+            }
+            console.warn("implement or remove ctrl-y")
+        }
+        if (event.ctrlKey && event.key === 'y') {
+            console.warn("implement or remove ctrl-y")
+        }
     }
     
     function createCells(){
@@ -143,7 +192,7 @@ function GameOfLife(){
     }
 
     return (
-        <div className="clock-container">
+        <div className="backgroundPattern1">
 
             <div id="cellContainer" 
                 style={style_cellContainer} 
@@ -153,11 +202,10 @@ function GameOfLife(){
             >
                 {createCells()}
             </div>
-            <div style={{display: "inline"}}>
+            <div>
+                <button id="button_startStop" onClick={onStartStopButtonPressed}>{ gameRunning? "Stop" : "Start" }</button>
                 <button onClick={onResetButtonPressed}>reset to random</button>
                 <button onClick={onResetEmptyButtonPressed}>reset to empty</button>
-                <button onClick={onStartButtonPressed}>start</button>
-                <button onClick={onStopButtonPressed}>stop/pause</button>
             </div>
         </div>
     );

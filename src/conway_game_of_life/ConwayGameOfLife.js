@@ -25,8 +25,59 @@ export class ConwayGameOfLife{
         this.rowsY = widthX;
         this.colsX = heightY;
 
+        this.directions = [[0,-1], [1,-1], [1,0], [1,1], [0,1], [-1, 1], [-1,0], [-1,-1]]
+    
+        this.numSavedStates = 0;
+        this.oldStates = [];
+        this.fieldChangedSinceLastSaveOrLoad = true;
+
         this.field = this.#createFieldArray();
         this.initFieldToEmpty();
+    }
+
+    #createCopyOfField(field=this.field){
+        const copyOfField = [];
+        for(let x = 0; x < this.colsX; x++){
+            copyOfField.push([...field[x]]);
+        }
+        return copyOfField;
+    }
+
+    rememberState(){
+        if(!this.fieldChangedSinceLastSaveOrLoad) return;
+        this.fieldChangedSinceLastSaveOrLoad = false;
+
+        const copyOfCurrentField = this.#createCopyOfField()
+
+        if(this.oldStates.length <= this.numSavedStates){
+            this.oldStates.push(copyOfCurrentField);
+        } else {
+            this.oldStates[this.numSavedStates] = copyOfCurrentField;
+        }
+
+        this.numSavedStates++;
+    }
+
+    revertToLastState(){
+        // if edited since last save -> last save
+        // if not edited since last save -> load save before last
+        const loadIdx = this.numSavedStates - 1 
+                        - ((this.fieldChangedSinceLastSaveOrLoad)? 0 : 1);
+
+        if(loadIdx < 0) return false;
+
+        this.field = this.#createCopyOfField(this.oldStates[loadIdx]); // TODO careful! obetcs are passed by reference, use copies to overwrite
+        this.numSavedStates = loadIdx+1;
+
+        this.fieldChangedSinceLastSaveOrLoad = false;
+        return true;
+    }
+
+    resetRememberedStates(){
+        this.oldStates = [];
+        this.fieldChangedSinceLastSaveOrLoad = true;
+        this.numSavedStates = 0;
+        this.rememberState();
     }
 
     #createFieldArray(){
@@ -35,9 +86,12 @@ export class ConwayGameOfLife{
 
     initFieldToEmpty(){
         this.field = this.#createFieldArray();
+        this.resetRememberedStates();
     }
 
-    initFieldToRandom(filledPercentage=50){
+    initFieldToRandom(filledPercentage=33){
+        this.field = this.#createFieldArray();
+
         const indices = Array.from(Array(this.colsX * this.rowsY)).map((val,i)=>i);
         // Array.from(Array(10).keys())
         // [...Array(10).keys()]
@@ -49,6 +103,7 @@ export class ConwayGameOfLife{
             let [x, y] = [indices[i]%this.colsX, Math.floor(indices[i]/this.colsX)];
             this.field[x][y] = 1;
         }
+        this.resetRememberedStates();
     }
 
     #isInBounds(x, y){
@@ -57,8 +112,7 @@ export class ConwayGameOfLife{
 
     #countNeighbours(startX, startY){
         let res = 0;
-        const directions = [[0,-1], [1,-1], [1,0], [1,1], [0,1], [-1, 1], [-1,0], [-1,-1]]
-        for(let [dx, dy] of directions){
+        for(let [dx, dy] of this.directions){
             let [x, y] = [startX+dx, startY+dy];
 
             if(!this.#isInBounds(x, y)) continue;
@@ -97,6 +151,7 @@ export class ConwayGameOfLife{
 
     setXY(x, y, value){
         this.field[x][y] = (value)? 1 : 0; 
+        this.fieldChangedSinceLastSaveOrLoad = true;
     }
 
 }
