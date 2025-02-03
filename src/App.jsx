@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import TicTacToe from "./tic_tac_toe/TicTacToe.jsx"
 import Reversi from "./reversi/reversi.jsx"
 import Sudoku from "./sudoku/sudoku.jsx"
+import TestComp from "./test_coposition/test.jsx"
 
 const PlaceholderComponent = () => {
   return ( <><p>select a game</p></>)
@@ -46,6 +47,7 @@ function App() {
   let Props = games[currentGame][1]
   return (
     <>
+      <TestComp></TestComp>
       <select id="gameSelecter">
         {fillDropdownMenu()}
       </select>
