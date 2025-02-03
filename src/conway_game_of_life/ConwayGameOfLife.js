@@ -26,14 +26,18 @@ export class ConwayGameOfLife{
         this.colsX = heightY;
 
         this.field = this.#createFieldArray();
-        this.initFieldWithRandom();
+        this.initFieldToEmpty();
     }
 
     #createFieldArray(){
         return Array(this.colsX).fill().map(() => Array(this.rowsY).fill(0));
     }
 
-    initFieldWithRandom(filledPercentage=50){
+    initFieldToEmpty(){
+        this.field = this.#createFieldArray();
+    }
+
+    initFieldToRandom(filledPercentage=50){
         const indices = Array.from(Array(this.colsX * this.rowsY)).map((val,i)=>i);
         // Array.from(Array(10).keys())
         // [...Array(10).keys()]
