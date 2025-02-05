@@ -32,7 +32,8 @@ export class ConwayGameOfLife{
         this.fieldChangedSinceLastSaveOrLoad = true;
 
         this.field = this.#createFieldArray();
-        this.initFieldToEmpty();
+        //this.initFieldToEmpty();
+        this.initFieldToExample();
     }
 
     #createCopyOfField(field=this.field){
@@ -106,6 +107,20 @@ export class ConwayGameOfLife{
         this.resetRememberedStates();
     }
 
+    initFieldToExample(){
+        this.field = this.#createFieldArray();
+
+        if(this.colsX != 50 || this.rowsY != 50) return; // only for 50x50 fields
+
+        for(let y = 0; y < this.rowsY; y++){
+            for(let x = 0; x < this.colsX; x++){
+                if( exampleField[y].at(x) != " " ) this.field[y][x] = 1;
+            }
+        }
+
+        this.resetRememberedStates();
+    }
+
     #isInBounds(x, y){
         return 0 <= x && x < this.colsX && 0 <= y && y < this.rowsY
     }
@@ -155,3 +170,57 @@ export class ConwayGameOfLife{
     }
 
 }
+
+
+const exampleField = [
+    "                                                  ",
+    "                         #                        ",
+    "                       # #             ###    ### ",
+    "             ##      ##            ##        ###  ",
+    "            #   #    ##            ##             ",
+    " ##        #     #   ##                           ",
+    " ##        #   # ##    # #                 ##     ",
+    "           #     #       #                 ##     ",
+    "            #   #                        ##       ",
+    "             ##                          ##       ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "       ###   ###                                  ",
+    "                                                  ",
+    "     #    # #    #                                ",
+    "     #    # #    #                                ",
+    "     #    # #    #                                ",
+    "       ###   ###                                  ",
+    "                                                  ",
+    "       ###   ###                                  ",
+    "     #    # #    #                                ",
+    "     #    # #    #                                ",
+    "     #    # #    #                                ",
+    "                                                  ",
+    "       ###   ###                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "                                                  ",
+    "        ########                                  ",
+    "        # #### #                                  ",
+    "        ########                                  ",
+    "                                   ##             ",
+    "                                  #  #            ",
+    "                                   ##         ##  ",
+    "                                        ##   #  # ",
+    "                                        ##    # # ",
+    "                                               #  ",
+    "                                                  ",
+    "                                      ##      #   ",
+    "                                      # #    # #  ",
+    "                                       #      #   ",
+    "                                                  ",
+    "                                                  "
+]
