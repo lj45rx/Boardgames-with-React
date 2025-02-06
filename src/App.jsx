@@ -5,6 +5,7 @@ import Reversi from "./reversi/reversi.jsx"
 import Sudoku from "./sudoku/sudoku.jsx"
 import TestComp from "./test_coposition/test.jsx"
 import GameOfLife from "./conway_game_of_life/game_of_life.jsx"
+import AStar from "./a_star/a_star.jsx"
 
 const PlaceholderComponent = () => {
   return ( <><p>select a game</p></>)
@@ -20,6 +21,7 @@ const games = {
   "Sudoku 2x2":             [Sudoku, {blockSize: 2}],
   "Sudoku 4x4":             [Sudoku, {blockSize: 4}],
   "Conway's Game of Life":  [GameOfLife, ""],
+  "Maze: A*":  [AStar, ""],
 }
 
 function fillDropdownMenu(){
