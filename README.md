@@ -3,6 +3,7 @@
 * [TicTacToe and variations](#variations-of-tictactoe)
 * [Sudoku](#sudoku)
 * [Reversi](#reversi)
+* [Conway's game of life](#conway)
 
 ## Select game from dropdown menu<br>
 ![temp1](https://github.com/user-attachments/assets/6b08e778-fd20-4aed-9e64-6b57b154dc9b)
@@ -35,3 +36,14 @@ TicTacToe            |  Four in a row         |  Gomoku
 * count tiles and find winner in the end
 
 ![temp5](https://github.com/user-attachments/assets/3551bee7-b93c-4174-9528-b219f87155e9)
+
+<a name="conway"></a>
+## Conway's game of life
+* init to example, empty or random
+* draw by clicking and dragging the mouse, crtl-z to undo last draw
+
+standard rules -> living cell dies with less than 2, more than 3 living neighbours; dead cell comes to life with exactly 3 neighbours
+
+![temp2](https://github.com/user-attachments/assets/bd08f06b-9c5f-45d9-ad5f-3135705dc39d) | ![temp3](https://github.com/user-attachments/assets/b467243d-6f72-4437-8e56-5e091f08066b)
+:-------------------------:|:-------------------------:|
+running the example field | user drawn fields 
